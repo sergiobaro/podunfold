@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
-swift build
+swift build || exit 1
 .build/debug/podunfold $@

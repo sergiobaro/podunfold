@@ -1,3 +1,7 @@
 import PodUnfoldLib
 
-PodUnfold().run(args: CommandLine.arguments)
+do {
+    try PodUnfold().run(args: CommandLine.arguments)
+} catch {
+    print(error.localizedDescription)
+}

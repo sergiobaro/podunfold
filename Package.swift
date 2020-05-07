@@ -5,6 +5,9 @@ import PackageDescription
 
 let package = Package(
     name: "podunfold",
+    platforms: [
+        .macOS(.v10_15),
+    ],
     products: [
         .executable(name: "podunfold", targets: ["podunfold"]),
         .library(name: "PodUnfoldLib", targets: ["PodUnfoldLib"])
