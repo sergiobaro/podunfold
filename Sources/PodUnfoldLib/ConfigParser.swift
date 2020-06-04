@@ -2,7 +2,7 @@ import Foundation
 import Yams
 
 struct ConfigFile: Codable {
-    let pods: [String: PodConfig]
+    let pods: [PodConfig]
     let configs: [Config]
 }
 

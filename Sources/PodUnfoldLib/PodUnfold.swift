@@ -1,8 +1,17 @@
 import Foundation
 
-enum PodUnfoldError: Error {
-    case configNotFound(String)
-    case podNotFound(String)
+enum PodUnfoldError: LocalizedError {
+    case configNotFound(configName: String)
+    case podNotFound(podName: String, configName: String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .configNotFound(let configName):
+            return "Config with name '\(configName)' not found."
+        case .podNotFound(let podName, let configName):
+            return "Pod with name '\(podName)' not found in config '\(configName)'."
+        }
+    }
 }
 
 public class PodUnfold {
@@ -25,12 +34,12 @@ public class PodUnfold {
         var selectedConfigName: String?
         
         while selectedConfigName == nil {
-            print("Select config:")
             for (index, config) in configFile.configs.enumerated() {
                 if config.name.isEmpty { continue }
                 print("\(index + 1): \(config.name)")
             }
             
+            print("Select a configuration: ", terminator: "")
             if let input = readLine(),
                 let configOption = Int(input),
                 configFile.configs.indices.contains(configOption - 1) {
@@ -45,12 +54,11 @@ public class PodUnfold {
     
     private func execute(configName: String, configFile: ConfigFile) throws {
         guard let config = configFile.configs.first(where: { $0.name == configName }) else {
-            throw PodUnfoldError.configNotFound(configName)
+            throw PodUnfoldError.configNotFound(configName: configName)
         }
         
         try createAndMoveToFolder(config.name)
         try clonePods(config: config, pods: configFile.pods)
-        
         try PodfilePatcher().patch(config: config, pods: configFile.pods)
     }
     
@@ -59,22 +67,23 @@ public class PodUnfold {
         let currentFolder = fm.currentDirectoryPath
         let destinationFolder = currentFolder + "/" + folder
         
-        print("Moving to: \(destinationFolder)")
         if fm.fileExists(atPath: destinationFolder) {
             try fm.removeItem(atPath: destinationFolder)
+            print("Deleted: \(destinationFolder)")
         }
+        print("Moving to: \(destinationFolder)")
         try fm.createDirectory(atPath: destinationFolder, withIntermediateDirectories: false, attributes: nil)
         fm.changeCurrentDirectoryPath(destinationFolder)
     }
     
-    private func clonePods(config: Config, pods: [String: PodConfig]) throws {
-        for (podAlias, branch) in config.pods {
-            guard let podConfig = pods[podAlias] else {
-                throw PodUnfoldError.podNotFound(podAlias)
+    private func clonePods(config: Config, pods: [PodConfig]) throws {
+        for (podName, branch) in config.pods {
+            guard let podConfig = pods.first(where: { $0.name == podName }) else {
+                throw PodUnfoldError.podNotFound(podName: podName, configName: config.name)
             }
             
-            print("Working on pod: \(podAlias)")
-            Shell.run("git clone --depth 1 -b \(branch) \(podConfig.gitUrl) \(podAlias)")
+            print("Working on pod: \(podName)")
+            Shell.run("git clone --depth 1 -b \(branch) \(podConfig.gitUrl) \(podName)")
         }
     }
 }
