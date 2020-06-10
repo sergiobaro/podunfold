@@ -20,7 +20,7 @@ enum PodfilePatcherError: LocalizedError {
 class PodfilePatcher {
     
     func patch(config: Config, pods: [PodConfig]) throws {
-        guard let appConfig = findApp(config: config, pods: pods) else {
+        guard let appConfig = findHost(config: config, podConfigs: pods) else {
             throw PodfilePatcherError.appNotFound(podName: config.name)
         }
 
@@ -34,9 +34,7 @@ class PodfilePatcher {
         var podfileContents = try String(contentsOfFile: "Podfile")
 
         for podName in config.pods.keys {
-            guard podName != appConfig.name else {
-                continue
-            }
+            if podName == appConfig.name { continue }
             guard let podConfig = pods.first(where: { $0.name == podName }) else {
                 throw PodfilePatcherError.configNotFound(podName: podName, configName: config.name)
             }
@@ -56,16 +54,25 @@ class PodfilePatcher {
         Shell.run("pod install")
     }
     
-    private func findApp(config: Config, pods: [PodConfig]) -> PodConfig? {
-        let appNames = pods
-            .filter { $0.type == .app || $0.type == .example }
+    private func findHost(config: Config, podConfigs: [PodConfig]) -> PodConfig? {
+        if let config = findPod(ofType: .app, for: config, within: podConfigs) {
+            return config
+        }
+        
+        return findPod(ofType: .example, for: config, within: podConfigs)
+    }
+    
+    private func findPod(ofType type: PodType, for config: Config, within podConfigs: [PodConfig]) -> PodConfig? {
+        let allPodNamesOfType = podConfigs
+            .filter { $0.type == type }
             .map { $0.name }
         
-        let podAliases = config.pods.keys
-        guard let appName = podAliases.first(where: { appNames.contains($0) }) else {
+        let podNames = config.pods.keys
+        guard let podNameOfType = podNames.first(where: { allPodNamesOfType.contains($0) }) else {
             return nil
         }
-        return pods.first(where: { $0.name == appName })
+
+        return podConfigs.first(where: { $0.name == podNameOfType })
     }
     
     private func buildAppPath(app: PodConfig, alias: String, config: Config) -> String {
