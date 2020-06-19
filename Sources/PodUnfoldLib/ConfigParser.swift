@@ -33,6 +33,7 @@ struct PodConfig: Codable {
 
 struct Config: Codable {
     let name: String
+    let shallow: Bool?
     let pods: [String: String]
 }
 
