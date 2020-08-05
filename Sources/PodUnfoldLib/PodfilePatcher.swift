@@ -20,21 +20,22 @@ enum PodfilePatcherError: LocalizedError {
 class PodfilePatcher {
     
     func patch(config: Config, pods: [PodConfig]) throws {
-        guard let appConfig = findHost(config: config, podConfigs: pods) else {
+        guard let hostConfig = PodHostFinder.findHost(config: config, podConfigs: pods) else {
             throw PodfilePatcherError.appNotFound(podName: config.name)
         }
 
-        print("Patching Podfile of app: \(appConfig.name)")
-        let appPath = buildAppPath(app: appConfig, alias: appConfig.name, config: config)
+        print("Patching Podfile: \(hostConfig.name)")
+        let appPath = PodHostFinder.buildHostPath(hostConfig: hostConfig)
 
         print("Moving to: \(appPath)")
         let fm = FileManager.default
+        let originDirectoryPath = fm.currentDirectoryPath
         fm.changeCurrentDirectoryPath(appPath)
 
         var podfileContents = try String(contentsOfFile: "Podfile")
 
         for podName in config.pods.keys {
-            if podName == appConfig.name { continue }
+            if podName == hostConfig.name { continue }
             guard let podConfig = pods.first(where: { $0.name == podName }) else {
                 throw PodfilePatcherError.configNotFound(podName: podName, configName: config.name)
             }
@@ -43,7 +44,7 @@ class PodfilePatcher {
             guard podfileContents.contains(targetLine) else {
                 throw PodfilePatcherError.podNotFound(configName: podConfig.name)
             }
-            let podLocalPath = appConfig.type == .example ? "../../\(podName)" : "../\(podName)"
+            let podLocalPath = hostConfig.type == .example ? "../../\(podName)" : "../\(podName)"
             let replaceLine = "pod \'\(podConfig.name)\', :path => '\(podLocalPath)' #"
 
             podfileContents = podfileContents.replacingOccurrences(of: targetLine, with: replaceLine)
@@ -52,36 +53,7 @@ class PodfilePatcher {
         try podfileContents.write(toFile: "Podfile", atomically: true, encoding: .utf8)
         
         Shell.run("pod install")
-    }
-    
-    private func findHost(config: Config, podConfigs: [PodConfig]) -> PodConfig? {
-        if let config = findPod(ofType: .app, for: config, within: podConfigs) {
-            return config
-        }
         
-        return findPod(ofType: .example, for: config, within: podConfigs)
-    }
-    
-    private func findPod(ofType type: PodType, for config: Config, within podConfigs: [PodConfig]) -> PodConfig? {
-        let allPodNamesOfType = podConfigs
-            .filter { $0.type == type }
-            .map { $0.name }
-        
-        let podNames = config.pods.keys
-        guard let podNameOfType = podNames.first(where: { allPodNamesOfType.contains($0) }) else {
-            return nil
-        }
-
-        return podConfigs.first(where: { $0.name == podNameOfType })
-    }
-    
-    private func buildAppPath(app: PodConfig, alias: String, config: Config) -> String {
-        let fm = FileManager.default
-        var appPath = fm.currentDirectoryPath + "/" + alias
-        if app.type == .example {
-            appPath += "/Example"
-        }
-        
-        return appPath
+        fm.changeCurrentDirectoryPath(originDirectoryPath)
     }
 }

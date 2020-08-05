@@ -60,6 +60,7 @@ public class PodUnfold {
         try createAndMoveToFolder(config.name)
         try clonePods(config: config, pods: configFile.pods)
         try PodfilePatcher().patch(config: config, pods: configFile.pods)
+        try openXcode(config: config, pods: configFile.pods)
     }
     
     private func createAndMoveToFolder(_ folder: String) throws {
@@ -89,5 +90,14 @@ public class PodUnfold {
                 Shell.run("git clone -b \(branch) \(podConfig.gitUrl) \(podName)")
             }
         }
+    }
+    
+    private func openXcode(config: Config, pods: [PodConfig]) throws {
+        guard let hostConfig = PodHostFinder.findHost(config: config, podConfigs: pods) else {
+            return
+        }
+        let hostPath = PodHostFinder.buildHostPath(hostConfig: hostConfig)
+        
+        Shell.run("xed \(hostPath)/\(hostConfig.name).xcworkspace")
     }
 }
