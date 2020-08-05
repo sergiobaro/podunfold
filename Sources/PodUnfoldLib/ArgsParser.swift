@@ -7,10 +7,8 @@ struct Args {
 
 class ArgsParser {
     
-    static let defaultConfigFile = "unfold.yml"
-    
     func parse(args: [String]) throws -> Args {
-        var configFilePath = Self.defaultConfigFile
+        var configFilePath = Constants.defaultConfigFile
         if args.count > 0 {
             configFilePath = args[0]
         }

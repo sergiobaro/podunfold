@@ -8,7 +8,7 @@ class ArgsParserTests: XCTestCase {
     
     func test_parse_noOptions() throws {
         let args = try parser.parse(args: [])
-        expect(args.configFilePath) == ArgsParser.defaultConfigFile
+        expect(args.configFilePath) == Constants.defaultConfigFile
         expect(args.configName).to(beNil())
     }
     

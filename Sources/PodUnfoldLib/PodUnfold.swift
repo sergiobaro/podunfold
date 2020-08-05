@@ -83,7 +83,7 @@ public class PodUnfold {
             }
             
             print("Working on pod: \(podName)")
-            if config.shallow ?? true {
+            if config.shallow ?? Constants.shallowDefaultValue {
                 Shell.run("git clone --depth 1 -b \(branch) \(podConfig.gitUrl) \(podName)")
             } else {
                 Shell.run("git clone -b \(branch) \(podConfig.gitUrl) \(podName)")
