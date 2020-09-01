@@ -15,7 +15,7 @@ configs:
       Pod: feature/branch
   - name: ExampleConfig
     pods:
-      Example: develop
+      ExampleApp: develop
       Pod: feature/branch
   - name: ShallowConfig
     shallow: false
