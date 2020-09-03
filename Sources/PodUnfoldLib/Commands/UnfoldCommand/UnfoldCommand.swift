@@ -14,14 +14,23 @@ enum UnfoldCommandError: LocalizedError {
   }
 }
 
+struct UnfoldCommandArgs: Equatable {
+  let configFilePath: String
+  let configName: String?
+
+  static var `default`: Self {
+    .init(configFilePath: Constants.defaultConfigFile, configName: nil)
+  }
+}
+
 class UnfoldCommand: Command {
 
   private let configFilePath: String
   private let configName: String?
 
-  init(configFilePath: String, configName: String?) {
-    self.configFilePath = configFilePath
-    self.configName = configName
+  init(args: UnfoldCommandArgs) {
+    self.configFilePath = args.configFilePath
+    self.configName = args.configName
   }
   
   func execute() throws {
@@ -88,11 +97,21 @@ class UnfoldCommand: Command {
       }
       
       print("Working on pod: \(podName)")
-      if config.shallow ?? true {
-        Shell.run("git clone --depth 1 -b \"\(branch)\" \(podConfig.gitUrl) \(podName)")
-      } else {
-        Shell.run("git clone -b \"\(branch)\" \(podConfig.gitUrl) \(podName)")
-      }
+      let command = gitCommand(config: config, podConfig: podConfig, branch: branch)
+      Shell.run(command)
     }
+  }
+
+  private func gitCommand(config: Config, podConfig: PodConfig, branch: String) -> String {
+    let builder = GitBuilder()
+      .clone(url: podConfig.gitUrl)
+      .folder(podConfig.name)
+      .branch(branch)
+
+    if config.shallow ?? Constants.defaultShallow {
+      builder.depth(1)
+    }
+
+    return builder.build()
   }
 }
