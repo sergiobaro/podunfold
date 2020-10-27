@@ -1,4 +1,5 @@
 import Foundation
+import PodPatchLib
 
 enum PodfilePatcherError: LocalizedError {
     case appNotFound(podName: String)
@@ -32,25 +33,12 @@ class PodfilePatcher {
         let originDirectoryPath = fm.currentDirectoryPath
         fm.changeCurrentDirectoryPath(appPath)
 
-        var podfileContents = try String(contentsOfFile: "Podfile")
-
         for podName in config.pods.keys {
             if podName == hostConfig.name { continue }
-            guard let podConfig = pods.first(where: { $0.name == podName }) else {
-                throw PodfilePatcherError.configNotFound(podName: podName, configName: config.name)
-            }
-
-            let targetLine = "pod \'\(podConfig.name)\',"
-            guard podfileContents.contains(targetLine) else {
-                throw PodfilePatcherError.podNotFound(configName: podConfig.name)
-            }
+            
             let podLocalPath = hostConfig.type == .example ? "../../\(podName)" : "../\(podName)"
-            let replaceLine = "pod \'\(podConfig.name)\', :path => '\(podLocalPath)' #"
-
-            podfileContents = podfileContents.replacingOccurrences(of: targetLine, with: replaceLine)
+            try PodPatch().run([podName, "path:\(podLocalPath)"])
         }
-
-        try podfileContents.write(toFile: "Podfile", atomically: true, encoding: .utf8)
         
         Shell.run("pod install")
         

@@ -29,6 +29,15 @@
         }
       },
       {
+        "package": "podpatch",
+        "repositoryURL": "https://github.com/sergiobaro/podpatch.git",
+        "state": {
+          "branch": null,
+          "revision": "53394cf8e46b3d8b23e8eb89847177384d3b891f",
+          "version": "1.0.1"
+        }
+      },
+      {
         "package": "Yams",
         "repositoryURL": "https://github.com/jpsim/Yams.git",
         "state": {

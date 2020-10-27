@@ -1,8 +1,21 @@
 # podunfold
 
-Clone an app with many pods in one command
+Clone an app with many development pods in one command
 
-## unfold.yml
+## Usage
+
+```bash
+$ podunfold <config_file> <config_name>
+```
+
+- The config file name by default is unfold.yml
+- If not config name is specified it will present a list of the configurations and it can be select by a number
+
+```bash
+$ podunfold  
+```
+
+## Configuration file format (unfold.yml)
 
 ```yml
 pods: # list of pods
@@ -36,6 +49,6 @@ configs: # list of different configurations of pods
 - example: the package is a pod with an example app (Example folder)
 - pod: it's a pod without an Example app.
 
-The type is used detect the host app. The host app Podfile is modified to point to the path of the other pods in the configuration.
+The type is used to detect the host app. The host app Podfile is modified to point to the path of the other pods in the configuration.
 
-Any configuration has to have an app or an example.
+Any configuration has to have an app or an example to act as a host.
