@@ -14,23 +14,14 @@ enum UnfoldCommandError: LocalizedError {
   }
 }
 
-struct UnfoldCommandArgs: Equatable {
-  let configFilePath: String
-  let configName: String?
-
-  static var `default`: Self {
-    .init(configFilePath: Constants.defaultConfigFile, configName: nil)
-  }
-}
-
 class UnfoldCommand: Command {
 
   private let configFilePath: String
   private let configName: String?
 
-  init(args: UnfoldCommandArgs) {
-    self.configFilePath = args.configFilePath
-    self.configName = args.configName
+  init(configFilePath: String, configName: String?) {
+    self.configFilePath = configFilePath
+    self.configName = configName
   }
   
   func execute() throws {

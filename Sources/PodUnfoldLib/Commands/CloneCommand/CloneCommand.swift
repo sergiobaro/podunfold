@@ -11,29 +11,27 @@ enum CloneCommandError: LocalizedError {
   }
 }
 
-struct CloneCommandArgs: Equatable {
-  let configFilePath: String
-  let podName: String
-  let destinationFolder: String?
-}
-
 class CloneCommand: Command {
 
-  private let args: CloneCommandArgs
+  private let configFilePath: String
+  private let podName: String
+  private let destinationFolder: String?
 
-  init(args: CloneCommandArgs) {
-    self.args = args
+  init(configFilePath: String, podName: String, destinationFolder: String?) {
+    self.configFilePath = configFilePath
+    self.podName = podName
+    self.destinationFolder = destinationFolder
   }
 
   func execute() throws {
-    let configFile = try ConfigParser().parse(configPathFile: args.configFilePath)
+    let configFile = try ConfigParser().parse(configPathFile: configFilePath)
 
-    guard let podConfig = findPodConfig(args.podName, in: configFile.pods) else {
-      throw CloneCommandError.podNotFound(args.podName, args.configFilePath)
+    guard let podConfig = findPodConfig(podName, in: configFile.pods) else {
+      throw CloneCommandError.podNotFound(podName, configFilePath)
     }
 
     let command = GitBuilder().clone(url: podConfig.gitUrl)
-      .folder(args.destinationFolder ?? args.podName)
+      .folder(destinationFolder ?? podName)
       .build()
     Shell.run(command)
   }

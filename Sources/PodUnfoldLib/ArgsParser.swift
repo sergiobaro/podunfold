@@ -1,48 +1,48 @@
 import Foundation
 
 enum ArgsCommand: Equatable {
-  case unfold(args: UnfoldCommandArgs)
-  case clone(args: CloneCommandArgs)
+  case unfold(configFilePath: String, configName: String?)
+  case clone(configFilePath: String, podName: String, destinationFolder: String?)
 }
 
 enum ArgsParserError: LocalizedError {
+  case commandNotFound(String)
   case podNameMissing
 
   var errorDescription: String? {
     switch self {
+    case .commandNotFound(let name):
+      return "Command '\(name)' not found"
     case .podNameMissing:
       return "PodName is missing\nUsage: podunfold clone <PodName>"
     }
   }
 }
 
-class ArgsParser {
-
-  static let defaultConfigFile = "unfold.yml"
-
-  func parse(args: [String]) throws -> ArgsCommand {
-    if args.count == 0 {
-      return ArgsCommand.unfold(args: .default)
-    }
-
-    if args[0] == "clone" {
-      guard let podName = args[at: 1] else {
-        throw ArgsParserError.podNameMissing
-      }
-      let cloneArgs = CloneCommandArgs(configFilePath: Self.defaultConfigFile,
-                                       podName: podName,
-                                       destinationFolder: args[at: 2])
-      return ArgsCommand.clone(args: cloneArgs)
-    }
-
-    let unfoldArgs = UnfoldCommandArgs(configFilePath: args[0], configName: args[at: 1])
-    return ArgsCommand.unfold(args: unfoldArgs)
-  }
+protocol CommandArgsParser {
+  var name: String { get }
+  func parse(args: [String]) throws -> ArgsCommand
 }
 
-private extension Array {
+class ArgsParser {
+  
+  private let commandParsers: [CommandArgsParser] = [
+    CloneCommandArgsParser(),
+    UnfoldCommandArgsParser()
+  ]
 
-  subscript(at index: Int) -> Element? {
-    indices.contains(index) ? self[index] : nil
+  func parse(args: [String]) throws -> ArgsCommand {
+    if args.isEmpty {
+      return Constants.defaultArgs
+    }
+    
+    guard let parser = findParser(for: args) else {
+      throw ArgsParserError.commandNotFound(args[0])
+    }
+    return try parser.parse(args: args)
+  }
+  
+  private func findParser(for args: [String]) -> CommandArgsParser? {
+    commandParsers.first(where: { $0.name == args[0] }) ?? commandParsers.last
   }
 }

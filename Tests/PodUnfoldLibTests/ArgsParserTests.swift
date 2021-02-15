@@ -17,7 +17,7 @@ class ArgsParserTests: XCTestCase {
       return
     }
 
-    expect(unfoldArgs.configFilePath) == ArgsParser.defaultConfigFile
+    expect(unfoldArgs.configFilePath) == Constants.defaultConfigFile
     expect(unfoldArgs.configName).to(beNil())
   }
 
@@ -63,7 +63,7 @@ class ArgsParserTests: XCTestCase {
       return
     }
 
-    expect(cloneArgs.configFilePath) == ArgsParser.defaultConfigFile
+    expect(cloneArgs.configFilePath) == Constants.defaultConfigFile
     expect(cloneArgs.podName) == "podName"
     expect(cloneArgs.destinationFolder).to(beNil())
   }
@@ -77,7 +77,7 @@ class ArgsParserTests: XCTestCase {
       return
     }
 
-    expect(cloneArgs.configFilePath) == ArgsParser.defaultConfigFile
+    expect(cloneArgs.configFilePath) == Constants.defaultConfigFile
     expect(cloneArgs.podName) == "podName"
     expect(cloneArgs.destinationFolder) == "folder"
   }

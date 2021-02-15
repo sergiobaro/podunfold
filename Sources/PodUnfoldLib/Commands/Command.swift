@@ -8,10 +8,10 @@ class CommandFactory {
 
   func command(for args: ArgsCommand) -> Command {
     switch args {
-    case let .unfold(args: unfoldArgs):
-      return UnfoldCommand(args: unfoldArgs)
-    case let .clone(args: cloneArgs):
-      return CloneCommand(args: cloneArgs)
+    case let .unfold(configFilePath: configFilePath, configName: configName):
+      return UnfoldCommand(configFilePath: configFilePath, configName: configName)
+    case let .clone(configFilePath: configFilePath, podName: podName, destinationFolder: destinationFolder):
+      return CloneCommand(configFilePath: configFilePath, podName: podName, destinationFolder: destinationFolder)
     }
   }
 }
