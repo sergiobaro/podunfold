@@ -29,6 +29,12 @@ struct PodConfig: Codable {
     self.gitUrl = try container.decode(String.self, forKey: .gitUrl)
     self.type = try container.decodeIfPresent(PodType.self, forKey: .type) ?? .pod
   }
+  
+  init(name: String, gitUrl: String, type: PodType) {
+    self.name = name
+    self.gitUrl = gitUrl
+    self.type = type
+  }
 }
 
 struct Config: Codable {

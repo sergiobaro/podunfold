@@ -10,9 +10,8 @@ class PodHostFinder {
     return findPod(ofType: .example, for: config, within: podConfigs)
   }
   
-  static func buildHostPath(hostConfig: PodConfig) -> String {
-    let fm = FileManager.default
-    var appPath = fm.currentDirectoryPath + "/" + hostConfig.name
+  static func buildHostPath(files: Files, hostConfig: PodConfig) -> String {
+    var appPath = files.currentFolder + "/" + hostConfig.name
     if hostConfig.type == .example {
       appPath += "/Example"
     }

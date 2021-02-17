@@ -1,39 +1,39 @@
 import Foundation
 
 enum CloneCommandError: LocalizedError {
-  case podNotFound(String, String)
+  case podNotFound(String)
 
   var errorDescription: String? {
     switch self {
-    case let .podNotFound(podName, configFilePath):
-      return "Pod with name \(podName) not found in config file \(configFilePath)"
+    case let .podNotFound(podName):
+      return "Pod with name \(podName) not found in configuration file"
     }
   }
 }
 
 class CloneCommand: Command {
 
-  private let configFilePath: String
+  private let configFile: ConfigFile
   private let podName: String
   private let destinationFolder: String?
+  private let shell: Shell
 
-  init(configFilePath: String, podName: String, destinationFolder: String?) {
-    self.configFilePath = configFilePath
+  init(configFile: ConfigFile, podName: String, destinationFolder: String?, shell: Shell) {
+    self.configFile = configFile
     self.podName = podName
     self.destinationFolder = destinationFolder
+    self.shell = shell
   }
 
   func execute() throws {
-    let configFile = try ConfigParser().parse(configPathFile: configFilePath)
-
     guard let podConfig = findPodConfig(podName, in: configFile.pods) else {
-      throw CloneCommandError.podNotFound(podName, configFilePath)
+      throw CloneCommandError.podNotFound(podName)
     }
 
     let command = GitBuilder().clone(url: podConfig.gitUrl)
       .folder(destinationFolder ?? podName)
       .build()
-    Shell.run(command)
+    shell.run(command)
   }
 
   private func findPodConfig(_ podName: String, in pods: [PodConfig]) -> PodConfig? {
