@@ -13,7 +13,7 @@ class UnfoldCommandTests: XCTestCase {
         .init(name: "Config", shallow: true, pods: ["Pod": "develop"])
       ]
     )
-    let filesMock = FilesMock(files: [:])
+    let filesMock = FilesMock(paths: [])
     let shellMock = ShellMock()
 
     let unfold = UnfoldCommand(
@@ -26,7 +26,7 @@ class UnfoldCommandTests: XCTestCase {
     expect(try unfold.execute()).to(throwError(UnfoldCommandError.configNotFound(configName: "NoConfig")))
   }
   
-  func test_config() {
+  func test_config_oneConfig_noFolder() {
     let configFile = ConfigFile(
       pods: [
         .init(name: "Pod", gitUrl: "http://pod.com", type: .app)
@@ -35,7 +35,8 @@ class UnfoldCommandTests: XCTestCase {
         .init(name: "Config", shallow: false, pods: ["Pod": "develop"])
       ]
     )
-    let filesMock = FilesMock(files: [:])
+    let filesMock = FilesMock(paths: ["Folder/Config"])
+    filesMock.currentFolderReturn = "Folder"
     
     let shellMock = ShellMock()
     shellMock.askReturn = "1"
@@ -48,7 +49,14 @@ class UnfoldCommandTests: XCTestCase {
     )
 
     expect(try unfold.execute()).toNot(throwError())
+
+    // create folder
+    expect(filesMock.deleteCalled).to(equal(true))
+
+    // clone pods
     expect(shellMock.commands[0]).to(equal("git clone http://pod.com Pod -b develop"))
+
+    // patch Podfile
     expect(shellMock.commands[1]).to(equal("pod install"))
   }
   
