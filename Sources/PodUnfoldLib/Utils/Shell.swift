@@ -2,11 +2,22 @@ import Foundation
 
 protocol Shell {
   
+  func echo(_ message: String)
+  func ask(_ message: String) -> String?
   @discardableResult
   func run(_ command: String) -> Int32
 }
 
 class ShellDefault: Shell {
+  
+  func echo(_ message: String) {
+    print(message)
+  }
+  
+  func ask(_ message: String) -> String? {
+    print(message, terminator: "")
+    return readLine()
+  }
   
   @discardableResult
   func run(_ command: String) -> Int32 {

@@ -22,12 +22,10 @@ class PodfilePatcher {
   
   private let files: Files
   private let shell: Shell
-  private let logger: Logger
   
-  init(files: Files, shell: Shell, logger: Logger) {
+  init(files: Files, shell: Shell) {
     self.files = files
     self.shell = shell
-    self.logger = logger
   }
   
   func patch(config: Config, pods: [PodConfig]) throws {
@@ -35,10 +33,10 @@ class PodfilePatcher {
       throw PodfilePatcherError.appNotFound(podName: config.name)
     }
     
-    logger.log("Patching Podfile: \(hostConfig.name)")
+    shell.echo("Patching Podfile: \(hostConfig.name)")
     let appPath = PodHostFinder.buildHostPath(files: files, hostConfig: hostConfig)
     
-    logger.log("Moving to: \(appPath)")
+    shell.echo("Moving to: \(appPath)")
     let originDirectoryPath = files.currentFolder
     files.changeCurrentFolder(appPath)
     

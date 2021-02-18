@@ -18,7 +18,7 @@ class CloneCommandTests: XCTestCase {
       shell: shellMock
     )
     
-    expect(try clone.execute()).to(throwError())
+    expect(try clone.execute()).to(throwError(CloneCommandError.podNotFound("OtherPodName")))
   }
   
   func test_success_withDestinationFolder() {
@@ -37,7 +37,7 @@ class CloneCommandTests: XCTestCase {
     
     expect(try clone.execute()).toNot(throwError())
     
-    expect(shellMock.lastCommand).to(equal("git clone https://podurl.com folder"))
+    expect(shellMock.commands.first).to(equal("git clone https://podurl.com folder"))
   }
   
   func test_success() {
@@ -56,6 +56,6 @@ class CloneCommandTests: XCTestCase {
     
     expect(try clone.execute()).toNot(throwError())
     
-    expect(shellMock.lastCommand).to(equal("git clone https://podurl.com PodName"))
+    expect(shellMock.commands.first).to(equal("git clone https://podurl.com PodName"))
   }
 }

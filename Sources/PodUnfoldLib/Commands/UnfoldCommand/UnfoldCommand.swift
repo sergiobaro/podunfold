@@ -20,14 +20,12 @@ class UnfoldCommand: Command {
   private let configName: String?
   private let files: Files
   private let shell: Shell
-  private let logger: Logger
 
-  init(configFile: ConfigFile, configName: String?, files: Files, shell: Shell, logger: Logger) {
+  init(configFile: ConfigFile, configName: String?, files: Files, shell: Shell) {
     self.configFile = configFile
     self.configName = configName
     self.files = files
     self.shell = shell
-    self.logger = logger
   }
   
   func execute() throws {
@@ -45,16 +43,15 @@ class UnfoldCommand: Command {
     while selectedConfigName == nil {
       for (index, config) in configFile.configs.enumerated() {
         if config.name.isEmpty { continue }
-        logger.log("\(index + 1): \(config.name)")
+        shell.echo("\(index + 1): \(config.name)")
       }
       
-      logger.ask("Select a configuration: ")
-      if let input = readLine(),
+      if let input = shell.ask("Select a configuration: "),
         let configOption = Int(input),
         configFile.configs.indices.contains(configOption - 1) {
         selectedConfigName = configFile.configs[configOption - 1].name
       } else {
-        logger.log("")
+        shell.echo("")
       }
     }
     
@@ -68,7 +65,7 @@ class UnfoldCommand: Command {
     
     try createAndMoveToFolder(config.name)
     try clonePods(config: config, pods: configFile.pods)
-    try PodfilePatcher(files: files, shell: shell, logger: logger)
+    try PodfilePatcher(files: files, shell: shell)
       .patch(config: config, pods: configFile.pods)
   }
   
@@ -78,9 +75,9 @@ class UnfoldCommand: Command {
     
     if files.exists(destinationFolder) {
       try files.delete(destinationFolder)
-      logger.log("Deleted: \(destinationFolder)")
+      shell.echo("Deleted: \(destinationFolder)")
     }
-    logger.log("Moving to: \(destinationFolder)")
+    shell.echo("Moving to: \(destinationFolder)")
     try files.createFolder(destinationFolder)
     files.changeCurrentFolder(destinationFolder)
   }
@@ -91,7 +88,7 @@ class UnfoldCommand: Command {
         throw UnfoldCommandError.podNotFound(podName: podName, configName: config.name)
       }
       
-      logger.log("Working on pod: \(podName)")
+      shell.echo("Working on pod: \(podName)")
       let command = gitCommand(config: config, podConfig: podConfig, branch: branch)
       shell.run(command)
     }

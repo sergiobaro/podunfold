@@ -16,8 +16,7 @@ class CommandFactory {
         configFile: configFile,
         configName: configName,
         files: FilesDefault(),
-        shell: ShellDefault(),
-        logger: TerminalLogger()
+        shell: ShellDefault()
       )
       
     // clone
