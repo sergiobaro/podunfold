@@ -1,0 +1,15 @@
+excluded:
+  - ".build/"
+
+disabled_rules:
+  - trailing_whitespace
+opt_in_rules:
+  - indentation_width
+  - control_statement
+  - empty_count
+  - trailing_newline
+  - colon
+  - comma
+
+indentation_width:
+  indentation_width: 2

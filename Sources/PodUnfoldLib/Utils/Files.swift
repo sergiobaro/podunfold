@@ -16,40 +16,40 @@ protocol Files {
 
 class FilesDefault: Files {
   
-  var currentFolder: String { fm.currentDirectoryPath }
+  var currentFolder: String { fileManager.currentDirectoryPath }
   
-  private let fm = FileManager.default
+  private let fileManager = FileManager.default
   
   func exists(_ path: String) -> Bool {
-    fm.fileExists(atPath: path)
+    fileManager.fileExists(atPath: path)
   }
   
   func contents(_ path: String) throws -> [String] {
-    try fm.contentsOfDirectory(atPath: path)
+    try fileManager.contentsOfDirectory(atPath: path)
   }
   
   func isDirectory(_ path: String) -> Bool {
-      var isDirectory: ObjCBool = false
-      guard fm.fileExists(atPath: path, isDirectory: &isDirectory) else {
-        return false
-      }
-      return isDirectory.boolValue
+    var isDirectory: ObjCBool = false
+    guard fileManager.fileExists(atPath: path, isDirectory: &isDirectory) else {
+      return false
+    }
+    return isDirectory.boolValue
   }
   
   func subfolders(_ path: String) throws -> [String] {
-    try fm.contentsOfDirectory(atPath: path)
+    try fileManager.contentsOfDirectory(atPath: path)
       .filter { isDirectory($0) }
   }
   
   func changeCurrentFolder(_ path: String) {
-    fm.changeCurrentDirectoryPath(path)
+    fileManager.changeCurrentDirectoryPath(path)
   }
   
   func delete(_ path: String) throws {
-    try fm.removeItem(atPath: path)
+    try fileManager.removeItem(atPath: path)
   }
   
   func createFolder(_ path: String) throws {
-    try fm.createDirectory(atPath: path, withIntermediateDirectories: false, attributes: nil)
+    try fileManager.createDirectory(atPath: path, withIntermediateDirectories: false, attributes: nil)
   }
 }
