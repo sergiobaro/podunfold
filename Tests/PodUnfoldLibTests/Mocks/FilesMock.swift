@@ -3,9 +3,13 @@ import Foundation
 
 class FilesMock: Files {
   
-  private let paths: [String]
+  var paths: [String: [String]]
   
-  init(paths: [String]) {
+  convenience init() {
+    self.init(paths: [:])
+  }
+  
+  init(paths: [String: [String]]) {
     self.paths = paths
   }
 
@@ -13,11 +17,16 @@ class FilesMock: Files {
   var currentFolder: String { currentFolderReturn }
   
   func exists(_ path: String) -> Bool {
-    paths.contains(path)
+    paths.keys.contains(path)
   }
   
   func contents(_ path: String) throws -> [String] {
     []
+  }
+  
+  func isGit(_ path: String) throws -> Bool {
+    let cleanedPath = path.replacingOccurrences(of: "/", with: "")
+    return paths[cleanedPath]?.contains(".git") ?? false
   }
   
   func isDirectory(_ path: String) -> Bool {
@@ -25,7 +34,7 @@ class FilesMock: Files {
   }
   
   func subfolders(_ path: String) throws -> [String] {
-    []
+    Array(paths.keys)
   }
   
   func changeCurrentFolder(_ path: String) {

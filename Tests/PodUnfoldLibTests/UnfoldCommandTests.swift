@@ -13,7 +13,7 @@ class UnfoldCommandTests: XCTestCase {
         .init(name: "Config", shallow: true, pods: ["Pod": "develop"])
       ]
     )
-    let filesMock = FilesMock(paths: [])
+    let filesMock = FilesMock()
     let shellMock = ShellMock()
 
     let unfold = UnfoldCommand(
@@ -35,7 +35,7 @@ class UnfoldCommandTests: XCTestCase {
         .init(name: "Config", shallow: false, pods: ["Pod": "develop"])
       ]
     )
-    let filesMock = FilesMock(paths: ["Folder/Config"])
+    let filesMock = FilesMock(paths: ["Folder/Config": []])
     filesMock.currentFolderReturn = "Folder"
     
     let shellMock = ShellMock()

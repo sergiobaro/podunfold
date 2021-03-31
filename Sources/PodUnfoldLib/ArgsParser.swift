@@ -3,6 +3,7 @@ import Foundation
 enum ArgsCommand: Equatable {
   case unfold(configFilePath: String, configName: String?)
   case clone(configFilePath: String, podName: String, destinationFolder: String?)
+  case pull(folder: String?)
 }
 
 enum ArgsParserError: LocalizedError {
@@ -28,6 +29,7 @@ class ArgsParser {
   
   private let commandParsers: [CommandArgsParser] = [
     CloneCommandArgsParser(),
+    PullCommandArgsParser(),
     UnfoldCommandArgsParser()
   ]
 

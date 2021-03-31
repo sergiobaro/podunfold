@@ -28,6 +28,14 @@ class CommandFactory {
         destinationFolder: destinationFolder,
         shell: ShellDefault()
       )
+      
+    // pull
+    case let .pull(folder: folder):
+      return PullCommand(
+        folder: folder,
+        files: FilesDefault(),
+        shell: ShellDefault()
+      )
     }
   }
 }

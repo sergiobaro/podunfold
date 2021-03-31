@@ -29,6 +29,12 @@ class GitBuilder {
     }
     return self
   }
+  
+  @discardableResult
+  func pull() -> Self {
+    command += " pull"
+    return self
+  }
 
   func build() -> String {
     command
