@@ -10,8 +10,7 @@ Clones all the pods specificied in the selected configuration.
 $ podunfold <config_file> <config_name>
 ```
 - The config file name by default is unfold.yml
-- If a config name is not specified it will present a list of the configurations found in the default config file, if it exists. 
-The configuration to unfold can be selected by number.
+- If a config name is not specified it will present a list of the configurations found in the default config file, if it exists. The configuration to unfold can be selected by number.
 
 
 ### Configuration file (unfold.yml)
@@ -37,24 +36,34 @@ configs: # list of configurations
       Example: develop
       Pod: feature/branch
   - name: ShallowConfig
-    shallow: false # shallow clone (--depth 1)
+    shallow: true # shallow clone (--depth 1)
     pods:
       App: feature/branch
       Pod: feature/branch
 ```
 
 ### Pod types:
-- app: the package is an app
-- example: the package is a pod with an example app (Example folder)
-- pod: it's a pod without an Example app.
+- `app`: the package is an app
+- `example`: the package is a pod with an example app (Example folder)
+- `pod`: it's a pod without an Example app.
 
 The type is used to detect the host app. The host app Podfile is modified to point to the path of the other pods in the configuration.
 
 Any configuration has to have an app or an example to act as a host.
 
 
-### Command `clone`
+## Command `clone`
+
+Clones a pod using the pod name defined in the config file
 
 ```bash
-$ podunfold clone <pod_name>
+$ podunfold clone <pod_name> <folder>
+```
+
+## Command `pull`
+
+Performs `git pull` in each subfolder (if its a git repository) for the given folder or current directory. Useful to update a folder that contains many pods.
+
+```bash
+$ podunfold pull <folder>
 ```
