@@ -29,6 +29,13 @@ class ArgsParserTests: XCTestCase {
     expect(args) == ArgsCommand.unfold(configFilePath: "configFile.yml", configName: "configName")
   }
   
+  // $ podunfold configName
+  func test_parse_configName() throws {
+    let args = try parser.parse(args: ["configName"])
+    
+    expect(args) == ArgsCommand.unfold(configFilePath: Constants.defaultConfigFile, configName: "configName")
+  }
+  
   // MARK: - Clone
   
   // $ podunfold clone
